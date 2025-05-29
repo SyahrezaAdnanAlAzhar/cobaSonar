@@ -8,7 +8,7 @@
   <dependency>
     <groupId>junit</groupId>
     <artifactId>junit</artifactId>
-    <version>4.11</version> <!-- Or whatever JUnit you're using. -->
+    <version>4.11</version>
 	</dependency>
 </dependencies>
 
@@ -22,8 +22,8 @@
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>11</maven.compiler.source> 
-    <maven.compiler.target>11</maven.compiler.target> 
+    <maven.compiler.source>17</maven.compiler.source> 
+    <maven.compiler.target>17</maven.compiler.target> 
     <sonar.organization>syahrezaadnanalazhar-2</sonar.organization>
     <sonar.projectKey>SyahrezaAdnanAlAzhar_cobaSonar</sonar.projectKey>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -31,11 +31,10 @@
 
 <build>
     <plugins>
-        <!-- Plugin lain yang mungkin sudah ada -->
         <plugin>
             <groupId>org.sonarsource.scanner.maven</groupId>
             <artifactId>sonar-maven-plugin</artifactId>
-            <version>3.10.0.2594</version> <!-- Gunakan versi terbaru yang stabil -->
+            <version>3.10.0.2594</version> 
         </plugin>
     </plugins>
 </build>
