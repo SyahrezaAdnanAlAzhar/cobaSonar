@@ -1,0 +1,53 @@
+name: Build, Test, and Publish Package
+
+on:
+  release: # Direkomendasikan: Publish ketika rilis baru dibuat di GitHub
+    types: [created]
+  # Atau, jika Anda tetap ingin publish pada push ke main (kurang umum untuk rilis resmi):
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  build-and-publish:
+    name: Build and Publish Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read      # Untuk checkout repository
+      packages: write     # Untuk publish package ke GitHub Packages
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # fetch-depth: 0 # Hanya diperlukan jika SonarCloud/analisis histori git aktif
+
+      - name: Set up JDK 17 and Maven settings
+        uses: actions/setup-java@v4 # Anda menggunakan v4, itu bagus
+        with:
+          java-version: '17' # Sesuai dengan pom.xml Anda
+          distribution: 'temurin'
+          cache: 'maven' # Menggunakan cache Maven bawaan setup-java
+          server-id: github # Harus cocok dengan <id> di pom.xml Anda
+          # server-username: GITHUB_ACTOR # setup-java biasanya menangani ini untuk GitHub Packages
+          server-password: ${{ secrets.GITHUB_TOKEN }} # Eksplisit seperti contoh dosen
+          settings-path: ${{ github.workspace }} # MENULIS settings.xml KE WORKSPACE
+
+      # Langkah Build (compile, test, package)
+      # Sebaiknya pisahkan build/package dari deploy untuk kejelasan
+      - name: Build with Maven
+        run: mvn -B package -DskipTests # Menghasilkan JAR. -DskipTests jika tes sudah dijalankan
+                                     # atau jika Anda menjalankan 'verify' yang sudah termasuk tes.
+                                     # Jika ingin tes dijalankan di sini: mvn -B verify
+
+      # Langkah Publish
+      - name: Publish to GitHub Packages
+        # Kondisi 'if' ini hanya benar-benar diperlukan jika Anda punya beberapa trigger 'on'
+        # dan ingin membatasi publish hanya ke salah satunya (misalnya, hanya pada 'release').
+        # Jika 'on: release: types: [created]' adalah SATU-SATUNYA trigger, 'if' ini redundan.
+        if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: mvn -B deploy -DskipTests -s ${{ github.workspace }}/settings.xml # MENGGUNAKAN settings.xml DARI WORKSPACE
+        env:
+          # GITHUB_TOKEN ini mungkin tidak diperlukan secara eksplisit di env langkah ini
+          # jika setup-java sudah benar mengkonfigurasi token di settings.xml
+          # Namun, untuk mengikuti pola dosen, bisa disertakan.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
