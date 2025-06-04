@@ -10,6 +10,8 @@ public class Counter {
 		
 	public void reset() {
 		count = 0;
+		count++;
+		count--;
 	}
 	
 	public void increment() {
